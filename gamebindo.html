@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Petualangan Suku Kata - Kelas 1</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Comic Sans MS', 'Arial Rounded MT Bold', sans-serif;
+    background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 50%, #a1c4fd 100%);
+    background-size: 200% 200%;
+    animation: gradientBG 10s ease infinite;
+    min-height: 100vh;
+    display: flex; justify-content: center; align-items: center;
+    padding: 15px;
+  }
+  @keyframes gradientBG {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+  .game {
+    background: rgba(255, 255, 255, 0.95); 
+    border-radius: 30px; padding: 25px;
+    max-width: 550px; width: 100%;
+    box-shadow: 0 15px 40px rgba(0,0,0,0.25), inset 0 0 0 5px #fff;
+    text-align: center;
+    border: 4px solid #ffd93d;
+  }
+  h1 { 
+    background: -webkit-linear-gradient(#ff6b9d, #ff4081);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    font-size: 1.8em; margin-bottom: 3px; 
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+  }
+  .subtitle { color: #666; font-size: 0.9em; margin-bottom: 15px; font-weight: bold; }
+  .stats {
+    display: flex; justify-content: space-around;
+    background: #fff5f8; border-radius: 15px; padding: 12px;
+    margin-bottom: 15px; font-size: 1.05em;
+    border: 2px dashed #ff6b9d;
+  }
+  .stats div { font-weight: bold; color: #ff6b9d; }
+  .topic {
+    display: inline-block; background: linear-gradient(45deg, #ffd93d, #ffb347); 
+    color: #333; padding: 6px 18px; border-radius: 20px;
+    font-size: 0.9em; margin-bottom: 12px; font-weight: bold;
+    box-shadow: 0 4px 10px rgba(255, 217, 61, 0.4);
+  }
+  .question-box {
+    background: linear-gradient(to bottom, #e3f2fd, #bbdefb); 
+    border-radius: 20px; padding: 20px; margin-bottom: 20px;
+    border: 3px solid #90caf9;
+    box-shadow: inset 0 -5px 0 rgba(0,0,0,0.05);
+  }
+  .emoji { font-size: 4.5em; margin: 5px 0; animation: float 3s ease-in-out infinite; }
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+  }
+  .question { font-size: 1.15em; color: #333; margin-bottom: 10px; font-weight: bold; }
+  .word-display {
+    font-size: 2.2em; font-weight: bold; color: #ff6b9d;
+    letter-spacing: 2px; margin: 10px 0;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+  }
+  .blank { 
+    color: #4a90e2; background: #fff3cd; 
+    padding: 0 15px; border-radius: 10px;
+    border: 3px dashed #4a90e2;
+  }
+  .options {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 12px; margin-bottom: 15px;
+  }
+  .option {
+    background: white; border: none;
+    color: white; font-size: 1.5em; font-weight: bold;
+    padding: 18px; border-radius: 18px; cursor: pointer;
+    transition: all 0.2s; font-family: inherit;
+    box-shadow: 0 6px 0 rgba(0,0,0,0.2);
+    user-select: none;
+  }
+  .option:nth-child(1) { background: #ff6b9d; box-shadow: 0 6px 0 #d84a78; }
+  .option:nth-child(2) { background: #4a90e2; box-shadow: 0 6px 0 #2c6bb0; }
+  .option:nth-child(3) { background: #ffb347; box-shadow: 0 6px 0 #d6932e; }
+  .option:nth-child(4) { background: #4caf50; box-shadow: 0 6px 0 #327535; }
+  .option:hover:not(:disabled) {
+    transform: translateY(-3px) scale(1.02);
+    filter: brightness(1.1);
+  }
+  .option:active:not(:disabled) {
+    transform: translateY(4px);
+    box-shadow: 0 2px 0 rgba(0,0,0,0.2);
+  }
+  .option.correct { 
+    background: #4caf50 !important; box-shadow: 0 6px 0 #2e7d32 !important; 
+    animation: pop 0.4s ease;
+  }
+  .option.wrong { 
+    background: #f44336 !important; box-shadow: 0 6px 0 #b71c1c !important; 
+    animation: shake 0.4s ease;
+  }
+  .option:disabled { cursor: not-allowed; filter: brightness(0.7); }
+  .option.correct:disabled, .option.wrong:disabled { filter: brightness(1); }
+  @keyframes pop {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); }
+  }
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-5px); }
+    75% { transform: translateX(5px); }
+  }
+  .feedback {
+    min-height: 32px; font-size: 1.1em; font-weight: bold; margin-bottom: 10px;
+  }
+  .feedback.correct { color: #4caf50; }
+  .feedback.wrong { color: #f44336; }
+  .next-btn {
+    background: linear-gradient(45deg, #ff6b9d, #ff4081); color: white; border: none;
+    padding: 15px 40px; font-size: 1.2em; border-radius: 25px;
+    cursor: pointer; font-family: inherit; font-weight: bold;
+    display: none; box-shadow: 0 6px 0 #c51162;
+    transition: all 0.2s; margin-top: 5px;
+  }
+  .next-btn:hover { transform: translateY(-2px); filter: brightness(1.1); }
+  .next-btn:active { transform: translateY(4px); box-shadow: 0 2px 0 #c51162; }
+  .progress-bar {
+    height: 12px; background: #eee; border-radius: 10px;
+    overflow: hidden; margin-bottom: 12px;
+    box-shadow: inset 0 2px 5px rgba(0,0,0,0.1);
+  }
+  .progress-fill {
+    height: 100%; background: linear-gradient(90deg, #ffd93d, #ff6b9d);
+    transition: width 0.3s; border-radius: 10px;
+  }
+  .end-screen { display: none; }
+  .end-screen h2 { 
+    color: #ff6b9d; font-size: 2em; margin-bottom: 15px; 
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+  }
+  .end-screen p { font-size: 1.2em; margin: 8px 0; color: #333; font-weight: bold; }
+  .stars-display { font-size: 2.5em; margin: 10px 0; }
+  .restart {
+    background: linear-gradient(45deg, #4caf50, #45a049); color: white; border: none;
+    padding: 15px 35px; font-size: 1.2em; border-radius: 25px;
+    cursor: pointer; margin-top: 20px; font-family: inherit; font-weight: bold;
+    box-shadow: 0 6px 0 #2e7d32; transition: all 0.2s;
+  }
+  .restart:hover { transform: translateY(-2px); filter: brightness(1.1); }
+  .restart:active { transform: translateY(4px); box-shadow: 0 2px 0 #2e7d32; }
+</style>
+</head>
+<body>
+<div class="game">
+  <h1>🌈 Petualangan Suku Kata</h1>
+  <p class="subtitle">Pilih jawaban yang benar dengan cara diklik!</p>
+
+  <div id="mainScreen">
+    <div class="progress-bar"><div class="progress-fill" id="progress"></div></div>
+    <div class="stats">
+      <div>Soal: <span id="qNum">1</span>/<span id="qTotal">20</span></div>
+      <div>⭐ Skor: <span id="score">0</span></div>
+    </div>
+
+    <div class="topic" id="topic">🐾 Hewan</div>
+
+    <div class="question-box">
+      <div class="emoji" id="emoji">🐻</div>
+      <div class="question" id="question">Hewan apakah aku?</div>
+      <div class="word-display">
+        <span class="blank" id="blank">__</span><span id="rest">ruang</span>
+      </div>
+    </div>
+
+    <div class="options" id="options"></div>
+    <div class="feedback" id="feedback"></div>
+    <button class="next-btn" id="nextBtn">Lanjut ➡️</button>
+  </div>
+
+  <div class="end-screen" id="endScreen">
+    <h2>🎉 Hebat!</h2>
+    <p>Kamu menyelesaikan semua soal!</p>
+    <p>Skor kamu: <strong id="finalScore">0</strong></p>
+    <div class="stars-display" id="stars">⭐⭐⭐</div>
+    <button class="restart" onclick="restartGame()">Main Lagi 🔄</button>
+  </div>
+</div>
+
+<script>
+// DATA SOAL (2 huruf di depan)
+const allQuestions = [
+  // 🐾 HEWAN
+  { emoji:"🐻", topic:"🐾 Hewan", question:"Hewan apakah aku?", ans:"be", rest:"ruang", opts:["ba","be","bu","bi"] },
+  { emoji:"🐱", topic:"🐾 Hewan", question:"Hewan apakah aku?", ans:"ku", rest:"cing", opts:["ka","ke","ki","ku"] },
+  { emoji:"🐟", topic:"🐾 Hewan", question:"Hewan apakah aku?", ans:"i", rest:"kan", opts:["a","i","u","e"] },
+  { emoji:"🐮", topic:"🐾 Hewan", question:"Hewan apakah aku?", ans:"sa", rest:"pi", opts:["sa","si","su","se"] },
+  { emoji:"🐐", topic:"🐾 Hewan", question:"Hewan apakah aku?", ans:"ka", rest:"mbing", opts:["ka","ki","ku","ke"] },
+  { emoji:"🐰", topic:"🐾 Hewan", question:"Hewan apakah aku?", ans:"ke", rest:"linci", opts:["ka","ke","ki","ko"] },
+  { emoji:"🐘", topic:"🐾 Hewan", question:"Hewan apakah aku?", ans:"ga", rest:"jah", opts:["ga","gi","gu","ge"] },
+  { emoji:"🐒", topic:"🐾 Hewan", question:"Hewan apakah aku?", ans:"mo", rest:"nyet", opts:["ma","mi","mo","mu"] },
+  { emoji:"🐭", topic:"🐾 Hewan", question:"Hewan apakah aku?", ans:"ti", rest:"kus", opts:["ta","ti","tu","te"] },
+  { emoji:"🐝", topic:"🐾 Hewan", question:"Hewan apakah aku?", ans:"le", rest:"bah", opts:["la","le","li","lo"] },
+  { emoji:"🐢", topic:"🐾 Hewan", question:"Hewan apakah aku?", ans:"ku", rest:"ra", opts:["ka","ke","ki","ku"] },
+  { emoji:"🐸", topic:"🐾 Hewan", question:"Hewan apakah aku?", ans:"ka", rest:"tak", opts:["ka","ki","ku","ke"] },
+  { emoji:"🐔", topic:"🐾 Hewan", question:"Hewan apakah aku?", ans:"a", rest:"yam", opts:["a","i","u","e"] },
+  { emoji:"🦁", topic:"🐾 Hewan", question:"Hewan apakah aku?", ans:"si", rest:"nga", opts:["sa","si","su","se"] },
+  { emoji:"🐜", topic:"🐾 Hewan", question:"Hewan apakah aku?", ans:"se", rest:"mut", opts:["sa","se","si","so"] },
+  { emoji:"🐦", topic:"🐾 Hewan", question:"Hewan apakah aku?", ans:"bu", rest:"rung", opts:["ba","be","bi","bu"] },
+  { emoji:"🐍", topic:"🐾 Hewan", question:"Hewan apakah aku?", ans:"u", rest:"lar", opts:["a","i","u","e"] },
+  { emoji:"🦆", topic:"🐾 Hewan", question:"Hewan apakah aku?", ans:"be", rest:"bek", opts:["ba","be","bi","bo"] },
+  { emoji:"🐴", topic:"🐾 Hewan", question:"Hewan apakah aku?", ans:"ku", rest:"da", opts:["ka","ke","ki","ku"] },
+  { emoji:"🐷", topic:"🐾 Hewan", question:"Hewan apakah aku?", ans:"ba", rest:"bi", opts:["ba","be","bi","bu"] },
+
+  // 🍎 BUAH
+  { emoji:"🥭", topic:"🍎 Buah", question:"Buah apakah ini?", ans:"ma", rest:"ngga", opts:["ma","mi","mu","me"] },
+  { emoji:"🍈", topic:"🍎 Buah", question:"Buah apakah ini?", ans:"me", rest:"lon", opts:["ma","me","mi","mo"] },
+  { emoji:"🍊", topic:"🍎 Buah", question:"Buah apakah ini?", ans:"je", rest:"ruk", opts:["ja","je","ji","jo"] },
+  { emoji:"🍎", topic:"🍎 Buah", question:"Buah apakah ini?", ans:"a", rest:"pel", opts:["a","i","u","e"] },
+  { emoji:"🍌", topic:"🍎 Buah", question:"Buah apakah ini?", ans:"pi", rest:"sang", opts:["pa","pi","pu","pe"] },
+  { emoji:"🍇", topic:"🍎 Buah", question:"Buah apakah ini?", ans:"ang", rest:"gur", opts:["ang","ing","ung","eng"] },
+  { emoji:"🍓", topic:"🍎 Buah", question:"Buah apakah ini?", ans:"stro", rest:"beri", opts:["stra","stre","stri","stro"] },
+  { emoji:"🍉", topic:"🍎 Buah", question:"Buah apakah ini?", ans:"se", rest:"mangka", opts:["sa","se","si","so"] },
+  { emoji:"🍍", topic:"🍎 Buah", question:"Buah apakah ini?", ans:"na", rest:"nas", opts:["na","ni","nu","ne"] },
+  { emoji:"🥑", topic:"🍎 Buah", question:"Buah apakah ini?", ans:"al", rest:"pukat", opts:["al","el","il","ul"] },
+
+  // 🚗 KENDARAAN
+  { emoji:"🚗", topic:"🚗 Kendaraan", question:"Kendaraan apakah ini?", ans:"mo", rest:"bil", opts:["ma","me","mi","mo"] },
+  { emoji:"🏍️", topic:"🚗 Kendaraan", question:"Kendaraan apakah ini?", ans:"mo", rest:"tor", opts:["ma","me","mi","mo"] },
+  { emoji:"🚲", topic:"🚗 Kendaraan", question:"Kendaraan apakah ini?", ans:"se", rest:"peda", opts:["sa","se","si","so"] },
+  { emoji:"🚌", topic:"🚗 Kendaraan", question:"Kendaraan apakah ini?", ans:"bu", rest:"s", opts:["ba","be","bi","bu"] },
+  { emoji:"🚂", topic:"🚗 Kendaraan", question:"Kendaraan apakah ini?", ans:"ke", rest:"reta", opts:["ka","ke","ki","ko"] },
+  { emoji:"✈️", topic:"🚗 Kendaraan", question:"Kendaraan apakah ini?", ans:"pe", rest:"sawat", opts:["pa","pe","pi","po"] },
+  { emoji:"🚢", topic:"🚗 Kendaraan", question:"Kendaraan apakah ini?", ans:"ka", rest:"pal", opts:["ka","ke","ki","ko"] },
+  { emoji:"🚁", topic:"🚗 Kendaraan", question:"Kendaraan apakah ini?", ans:"he", rest:"likopter", opts:["ha","he","hi","ho"] },
+  { emoji:"🛵", topic:"🚗 Kendaraan", question:"Kendaraan apakah ini?", ans:"sko", rest:"ter", opts:["ska","ske","ski","sko"] },
+  { emoji:"🚑", topic:"🚗 Kendaraan", question:"Kendaraan apakah ini?", ans:"am", rest:"bulans", opts:["am","em","im","um"] },
+
+  // 👤 BAGIAN TUBUH
+  { emoji:"👄", topic:"👤 Bagian Tubuh", question:"Bagian tubuh apakah ini?", ans:"mu", rest:"lut", opts:["ma","me","mi","mu"] },
+  { emoji:"👀", topic:"👤 Bagian Tubuh", question:"Bagian tubuh apakah ini?", ans:"ma", rest:"ta", opts:["ma","me","mi","mo"] },
+  { emoji:"👃", topic:"👤 Bagian Tubuh", question:"Bagian tubuh apakah ini?", ans:"hi", rest:"dung", opts:["ha","he","hi","ho"] },
+  { emoji:"👂", topic:"👤 Bagian Tubuh", question:"Bagian tubuh apakah ini?", ans:"te", rest:"linga", opts:["ta","te","ti","to"] },
+  { emoji:"🦶", topic:"👤 Bagian Tubuh", question:"Bagian tubuh apakah ini?", ans:"ka", rest:"ki", opts:["ka","ke","ki","ko"] },
+  { emoji:"✋", topic:"👤 Bagian Tubuh", question:"Bagian tubuh apakah ini?", ans:"ta", rest:"ngan", opts:["ta","te","ti","to"] },
+  { emoji:"💇", topic:"👤 Bagian Tubuh", question:"Bagian tubuh apakah ini?", ans:"ram", rest:"but", opts:["ram","rim","rum","rem"] },
+  { emoji:"🦷", topic:"👤 Bagian Tubuh", question:"Bagian tubuh apakah ini?", ans:"gi", rest:"gi", opts:["ga","ge","gi","go"] },
+  { emoji:"👅", topic:"👤 Bagian Tubuh", question:"Bagian tubuh apakah ini?", ans:"li", rest:"dah", opts:["la","le","li","lo"] },
+  { emoji:"🦵", topic:"👤 Bagian Tubuh", question:"Bagian tubuh apakah ini?", ans:"tu", rest:"ngkai", opts:["ta","te","ti","tu"] },
+
+  // 🪑 BENDA
+  { emoji:"🪑", topic:"🪑 Benda", question:"Benda apakah ini?", ans:"me", rest:"ja", opts:["ma","me","mi","mo"] },
+  { emoji:"🛋️", topic:"🪑 Benda", question:"Benda apakah ini?", ans:"kur", rest:"si", opts:["kar","ker","kir","kur"] },
+  { emoji:"📚", topic:"🪑 Benda", question:"Benda apakah ini?", ans:"bu", rest:"ku", opts:["ba","be","bi","bu"] },
+  { emoji:"✏️", topic:"🪑 Benda", question:"Benda apakah ini?", ans:"pen", rest:"sil", opts:["pan","pen","pin","pun"] },
+  { emoji:"🎒", topic:"🪑 Benda", question:"Benda apakah ini?", ans:"ta", rest:"s", opts:["ta","te","ti","to"] },
+  { emoji:"🖊️", topic:"🪑 Benda", question:"Benda apakah ini?", ans:"pul", rest:"pen", opts:["pal","pel","pil","pul"] },
+  { emoji:"🕯️", topic:"🪑 Benda", question:"Benda apakah ini?", ans:"li", rest:"lin", opts:["la","le","li","lo"] },
+  { emoji:"🔔", topic:"🪑 Benda", question:"Benda apakah ini?", ans:"be", rest:"l", opts:["ba","be","bi","bo"] },
+  { emoji:"🚪", topic:"🪑 Benda", question:"Benda apakah ini?", ans:"pin", rest:"tu", opts:["pan","pen","pin","pun"] },
+  { emoji:"🪟", topic:"🪑 Benda", question:"Benda apakah ini?", ans:"jen", rest:"dela", opts:["jan","jen","jin","jon"] },
+
+  // 🍚 MAKANAN
+  { emoji:"🍜", topic:"🍚 Makanan", question:"Makanan apakah ini?", ans:"mi", rest:"e", opts:["ma","me","mi","mo"] },
+  { emoji:"🍚", topic:"🍚 Makanan", question:"Makanan apakah ini?", ans:"na", rest:"si", opts:["na","ne","ni","no"] },
+  { emoji:"🥛", topic:"🍚 Makanan", question:"Minuman apakah ini?", ans:"su", rest:"su", opts:["sa","se","si","su"] },
+  { emoji:"🍞", topic:"🍚 Makanan", question:"Makanan apakah ini?", ans:"ro", rest:"ti", opts:["ra","re","ri","ro"] },
+  { emoji:"🥚", topic:"🍚 Makanan", question:"Makanan apakah ini?", ans:"te", rest:"lur", opts:["ta","te","ti","to"] },
+  { emoji:"🍬", topic:"🍚 Makanan", question:"Makanan apakah ini?", ans:"per", rest:"men", opts:["par","per","pir","por"] },
+  { emoji:"🧀", topic:"🍚 Makanan", question:"Makanan apakah ini?", ans:"ke", rest:"ju", opts:["ka","ke","ki","ko"] },
+  { emoji:"🍗", topic:"🍚 Makanan", question:"Makanan apakah ini?", ans:"a", rest:"yam", opts:["a","i","u","e"] },
+  { emoji:"🍩", topic:"🍚 Makanan", question:"Makanan apakah ini?", ans:"do", rest:"nat", opts:["da","de","di","do"] },
+  { emoji:"🍪", topic:"🍚 Makanan", question:"Makanan apakah ini?", ans:"bis", rest:"kuit", opts:["bas","bes","bis","bus"] },
+
+  // 🌸 LAINNYA
+  { emoji:"🌼", topic:"🌸 Lainnya", question:"Bunga apakah ini?", ans:"me", rest:"lati", opts:["ma","me","mi","mo"] },
+  { emoji:"🌹", topic:"🌸 Lainnya", question:"Bunga apakah ini?", ans:"ma", rest:"war", opts:["ma","me","mi","mo"] },
+  { emoji:"💡", topic:"🌸 Lainnya", question:"Benda apakah ini?", ans:"lam", rest:"pu", opts:["lam","lim","lum","lem"] },
+  { emoji:"🌙", topic:"🌸 Lainnya", question:"Benda langit apakah ini?", ans:"bu", rest:"lan", opts:["ba","be","bi","bu"] },
+  { emoji:"☀️", topic:"🌸 Lainnya", question:"Benda langit apakah ini?", ans:"ma", rest:"tahari", opts:["ma","me","mi","mo"] },
+  { emoji:"🌈", topic:"🌸 Lainnya", question:"Fenomena alam apakah ini?", ans:"pe", rest:"langi", opts:["pa","pe","pi","po"] },
+  { emoji:"🎵", topic:"🌸 Lainnya", question:"Apa nama benda ini?", ans:"mu", rest:"sik", opts:["ma","me","mi","mu"] },
+  { emoji:"🥁", topic:"🌸 Lainnya", question:"Alat musik apakah ini?", ans:"drum", rest:"", opts:["dram","drem","drim","drum"] },
+  { emoji:"⚽", topic:"🌸 Lainnya", question:"Benda apakah ini?", ans:"bo", rest:"la", opts:["ba","be","bi","bo"] },
+  { emoji:"🏫", topic:"🌸 Lainnya", question:"Tempat apakah ini?", ans:"se", rest:"kolah", opts:["sa","se","si","so"] },
+];
+
+let questions = [];
+let current = 0;
+let score = 0;
+
+// --- FUNGSI SUARA ---
+const AudioContext = window.AudioContext || window.webkitAudioContext;
+let audioCtx;
+
+function initAudio() {
+  if (!audioCtx) { audioCtx = new AudioContext(); }
+}
+
+function playSound(type) {
+  initAudio();
+  if (audioCtx.state === 'suspended') { audioCtx.resume(); }
+  const osc = audioCtx.createOscillator();
+  const gainNode = audioCtx.createGain();
+  osc.connect(gainNode);
+  gainNode.connect(audioCtx.destination);
+  
+  if (type === 'click') {
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(600, audioCtx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(300, audioCtx.currentTime + 0.1);
+    gainNode.gain.setValueAtTime(0.5, audioCtx.currentTime);
+    gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
+    osc.start(); osc.stop(audioCtx.currentTime + 0.1);
+  } else if (type === 'correct') {
+    osc.type = 'triangle';
+    osc.frequency.setValueAtTime(400, audioCtx.currentTime);
+    osc.frequency.setValueAtTime(600, audioCtx.currentTime + 0.1);
+    osc.frequency.setValueAtTime(800, audioCtx.currentTime + 0.2);
+    gainNode.gain.setValueAtTime(0.5, audioCtx.currentTime);
+    gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.4);
+    osc.start(); osc.stop(audioCtx.currentTime + 0.4);
+  } else if (type === 'wrong') {
+    osc.type = 'sawtooth';
+    osc.frequency.setValueAtTime(300, audioCtx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(150, audioCtx.currentTime + 0.3);
+    gainNode.gain.setValueAtTime(0.3, audioCtx.currentTime);
+    gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.4);
+    osc.start(); osc.stop(audioCtx.currentTime + 0.4);
+  } else if (type === 'win') {
+    const notes = [400, 500, 600, 800];
+    notes.forEach((freq, i) => {
+      const o = audioCtx.createOscillator();
+      const g = audioCtx.createGain();
+      o.connect(g); g.connect(audioCtx.destination);
+      o.type = 'sine';
+      o.frequency.setValueAtTime(freq, audioCtx.currentTime + i * 0.1);
+      g.gain.setValueAtTime(0.3, audioCtx.currentTime + i * 0.1);
+      g.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + i * 0.1 + 0.3);
+      o.start(audioCtx.currentTime + i * 0.1); o.stop(audioCtx.currentTime + i * 0.1 + 0.3);
+    });
+  }
+}
+
+// --- LOGIKA GAME ---
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function startGame() {
+  questions = shuffle(allQuestions).slice(0, 20);
+  current = 0; score = 0;
+  document.getElementById('qTotal').textContent = questions.length;
+  document.getElementById('mainScreen').style.display = 'block';
+  document.getElementById('endScreen').style.display = 'none';
+  renderQuestion();
+}
+
+function renderQuestion() {
+  const q = questions[current];
+  document.getElementById('qNum').textContent = current + 1;
+  document.getElementById('score').textContent = score;
+  document.getElementById('topic').textContent = q.topic;
+  document.getElementById('emoji').textContent = q.emoji;
+  document.getElementById('question').textContent = q.question;
+  document.getElementById('blank').textContent = "__";
+  document.getElementById('rest').textContent = q.rest;
+  document.getElementById('progress').style.width = (current / questions.length * 100) + '%';
+
+  const optsDiv = document.getElementById('options');
+  optsDiv.innerHTML = '';
+  const opts = shuffle(q.opts);
+  opts.forEach(opt => {
+    const btn = document.createElement('button');
+    btn.className = 'option';
+    btn.textContent = opt;
+    btn.onclick = () => { playSound('click'); checkAnswer(btn, opt, q); };
+    optsDiv.appendChild(btn);
+  });
+
+  document.getElementById('feedback').textContent = '';
+  document.getElementById('feedback').className = 'feedback';
+  document.getElementById('nextBtn').style.display = 'none';
+}
+
+function checkAnswer(btn, chosen, q) {
+  const allOpts = document.querySelectorAll('.option');
+  allOpts.forEach(b => b.disabled = true);
+  const feedback = document.getElementById('feedback');
+
+  if (chosen === q.ans) {
+    btn.classList.add('correct');
+    feedback.textContent = '✅ Benar! Hebat!';
+    feedback.className = 'feedback correct';
+    score += 10;
+    document.getElementById('score').textContent = score;
+    playSound('correct');
+  } else {
+    btn.classList.add('wrong');
+    allOpts.forEach(b => { if (b.textContent === q.ans) b.classList.add('correct'); });
+    feedback.textContent = `❌ Belum tepat. Jawabannya: "${q.ans}"`;
+    feedback.className = 'feedback wrong';
+    playSound('wrong');
+  }
+  document.getElementById('nextBtn').style.display = 'inline-block';
+}
+
+document.getElementById('nextBtn').onclick = () => {
+  playSound('click');
+  current++;
+  if (current >= questions.length) showEnd();
+  else renderQuestion();
+};
+
+function showEnd() {
+  playSound('win');
+  document.getElementById('mainScreen').style.display = 'none';
+  document.getElementById('endScreen').style.display = 'block';
+  document.getElementById('finalScore').textContent = score;
+  const pct = score / (questions.length * 10);
+  document.getElementById('stars').textContent = pct >= 0.9 ? '⭐⭐⭐' : pct >= 0.7 ? '⭐⭐' : '⭐';
+}
+
+function restartGame() { playSound('click'); startGame(); }
+
+startGame();
+</script>
+</body>
+</html>
